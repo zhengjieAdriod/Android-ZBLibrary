@@ -14,68 +14,36 @@ limitations under the License.*/
 
 package zblibrary.demo.DEMO;
 
-import zblibrary.demo.R;
+import android.app.Activity;
+import android.view.ViewGroup;
+
 import zuo.biao.library.base.BaseAdapter;
 import zuo.biao.library.model.Entry;
-import zuo.biao.library.util.StringUtil;
-import android.app.Activity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-/** 使用方法：复制>粘贴>改名>改代码  */
-/**adapter模板，最灵活且性能最好，但如果有setOnClickListener等事件就不方便了
- * <br> 适用于ListView,GridView等AbsListView的子类
+
+/** 使用方法：复制>粘贴>改名>改代码 */
+/**adapter模板
+ * <br> 适用于几乎所有列表、表格，包括：
+ * <br> 1.RecyclerView及其子类
+ * <br> 2.ListView,GridView等AbsListView的子类
  * @author Lemon
- * @use new DemoAdapter(...); 具体参考.DemoActivity(setList方法内)
+ * @use 修改.ItemView代码 >> new DemoAdapter(...),具体参考.DemoActivity(setList方法内)
  */
-public class DemoAdapter extends BaseAdapter<Entry<String, String>> {
-//	private static final String TAG = "DemoAdapter";
-
+public class DemoAdapter extends BaseAdapter<Entry<String, String>, DemoView> {
 
 	public DemoAdapter(Activity context) {
 		super(context);
 	}
 
 	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
-		//示例代码<<<<<<<<<<<<<<<<
-		ViewHolder holder = convertView == null ? null : (ViewHolder) convertView.getTag();
-		if (holder == null) {
-			//TODO demo_item改为你所需要的layout文件
-			convertView = inflater.inflate(R.layout.demo_item, parent, false);
-			holder = new ViewHolder();
-
-			holder.ivDemoItemHead = (ImageView) convertView.findViewById(R.id.ivDemoItemHead);
-			holder.tvDemoItemName = (TextView) convertView.findViewById(R.id.tvDemoItemName);
-			holder.tvDemoItemNumber = (TextView) convertView.findViewById(R.id.tvDemoItemNumber);
-
-			convertView.setTag(holder);
-		}
-
-		final Entry<String, String> data = getItem(position);
-
-		holder.tvDemoItemName.setText(StringUtil.getTrimedString(data.getValue()));
-		holder.tvDemoItemNumber.setText(StringUtil.getNoBlankString(data.getKey()));
-
-		return super.getView(position, convertView, parent);
-		//示例代码>>>>>>>>>>>>>>>>
+	public DemoView createView(int position, ViewGroup parent) {
+		return new DemoView(context, parent);
 	}
-	
+
 	@Override
 	public long getItemId(int position) {
 		return getItem(position).getId();
 	}
 
-	
-	static class ViewHolder {
-		//示例代码<<<<<<<<<<<<<<<<
-		public ImageView ivDemoItemHead;
-		public TextView tvDemoItemName;
-		public TextView tvDemoItemNumber;
-		//示例代码>>>>>>>>>>>>>>>>
-	}
-	
 
 }

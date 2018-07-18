@@ -14,25 +14,6 @@ limitations under the License.*/
 
 package zblibrary.demo.activity_fragment;
 
-import zblibrary.demo.R;
-import zblibrary.demo.model.User;
-import zblibrary.demo.util.MenuUtil;
-import zblibrary.demo.view.UserView;
-import zuo.biao.library.base.BaseActivity;
-import zuo.biao.library.base.BaseModel;
-import zuo.biao.library.base.BaseView.OnDataChangedListener;
-import zuo.biao.library.interfaces.OnBottomDragListener;
-import zuo.biao.library.manager.CacheManager;
-import zuo.biao.library.manager.HttpManager.OnHttpResponseListener;
-import zuo.biao.library.ui.BottomMenuView;
-import zuo.biao.library.ui.BottomMenuView.OnBottomMenuItemClickListener;
-import zuo.biao.library.ui.BottomMenuWindow;
-import zuo.biao.library.ui.EditTextInfoActivity;
-import zuo.biao.library.ui.TextClearSuit;
-import zuo.biao.library.util.CommonUtil;
-import zuo.biao.library.util.JSON;
-import zuo.biao.library.util.Log;
-import zuo.biao.library.util.StringUtil;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -44,6 +25,26 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSONObject;
+
+import zblibrary.demo.R;
+import zblibrary.demo.model.User;
+import zblibrary.demo.util.MenuUtil;
+import zblibrary.demo.view.UserView;
+import zuo.biao.library.base.BaseActivity;
+import zuo.biao.library.base.BaseModel;
+import zuo.biao.library.base.BaseView.OnDataChangedListener;
+import zuo.biao.library.interfaces.OnBottomDragListener;
+import zuo.biao.library.interfaces.OnHttpResponseListener;
+import zuo.biao.library.manager.CacheManager;
+import zuo.biao.library.ui.BottomMenuView;
+import zuo.biao.library.ui.BottomMenuView.OnBottomMenuItemClickListener;
+import zuo.biao.library.ui.BottomMenuWindow;
+import zuo.biao.library.ui.EditTextInfoActivity;
+import zuo.biao.library.ui.TextClearSuit;
+import zuo.biao.library.util.CommonUtil;
+import zuo.biao.library.util.JSON;
+import zuo.biao.library.util.Log;
+import zuo.biao.library.util.StringUtil;
 
 /**联系人资料界面
  * @author Lemon
@@ -64,7 +65,7 @@ public class UserActivity extends BaseActivity implements OnClickListener, OnBot
 
 	@Override
 	public Activity getActivity() {
-		return this;
+		return this; //必须return this;
 	}
 
 	private long userId = 0;
@@ -107,31 +108,31 @@ public class UserActivity extends BaseActivity implements OnClickListener, OnBot
 
 		//添加用户名片，这些方式都可<<<<<<<<<<<<<<<<<<<<<<
 		//		//方式一
-		//		bvlUser = (BaseViewLayout<User>) findViewById(R.id.bvlUser);
+		//		bvlUser = findView(R.id.bvlUser);
 		//		bvlUser.createView(new UserView(context, getResources()));
-		//		
+		//
 		//		//方式二
-		//		uvlUser = (UserViewLayout) findViewById(R.id.uvlUser);
+		//		uvlUser = findView(R.id.uvlUser);
 
 		//方式三
-		llUserBusinessCardContainer = (ViewGroup) findViewById(R.id.llUserBusinessCardContainer);
+		llUserBusinessCardContainer = findView(R.id.llUserBusinessCardContainer);
 		llUserBusinessCardContainer.removeAllViews();
 
-		userView = new UserView(context, getResources());
-		llUserBusinessCardContainer.addView(userView.createView(getLayoutInflater()));
+		userView = new UserView(context, null);
+		llUserBusinessCardContainer.addView(userView.createView());
 		//添加用户名片，这些方式都可>>>>>>>>>>>>>>>>>>>>>>>
 
 
-		etUserRemark = (EditText) findViewById(R.id.etUserRemark);
-		tvUserTag = (TextView) findViewById(R.id.tvUserTag);
+		etUserRemark = findView(R.id.etUserRemark);
+		tvUserTag = findView(R.id.tvUserTag);
 
 
 		//添加底部菜单<<<<<<<<<<<<<<<<<<<<<<
-		llUserBottomMenuContainer = (ViewGroup) findViewById(R.id.llUserBottomMenuContainer);
+		llUserBottomMenuContainer = findView(R.id.llUserBottomMenuContainer);
 		llUserBottomMenuContainer.removeAllViews();
 
-		bottomMenuView = new BottomMenuView(context, getResources(), REQUEST_TO_BOTTOM_MENU);
-		llUserBottomMenuContainer.addView(bottomMenuView.createView(getLayoutInflater()));
+		bottomMenuView = new BottomMenuView(context, REQUEST_TO_BOTTOM_MENU);
+		llUserBottomMenuContainer.addView(bottomMenuView.createView());
 		//添加底部菜单>>>>>>>>>>>>>>>>>>>>>>>
 
 	}
@@ -206,17 +207,17 @@ public class UserActivity extends BaseActivity implements OnClickListener, OnBot
 	@Override
 	public void initEvent() {//必须调用
 
-		findViewById(R.id.llUserTag).setOnClickListener(this);
+		findView(R.id.llUserTag).setOnClickListener(this);
 
-		new TextClearSuit().addClearListener(etUserRemark, findViewById(R.id.ivUserRemarkClear));//清空备注按钮点击监听
+		new TextClearSuit().addClearListener(etUserRemark, findView(R.id.ivUserRemarkClear));//清空备注按钮点击监听
 
 		bottomMenuView.setOnMenuItemClickListener(this);//底部菜单点击监听
-		
+
 		userView.setOnDataChangedListener(new OnDataChangedListener() {
 
 			@Override
 			public void onDataChanged() {
-				user = userView.getData();
+				user = userView.data;
 			}
 		});
 	}
@@ -273,7 +274,7 @@ public class UserActivity extends BaseActivity implements OnClickListener, OnBot
 			showShortToast(R.string.get_failed);
 		} else {
 			setUser(user);
-		}		
+		}
 	}
 	//对应HttpRequest.getUser(userId, 0, UserActivity.this); >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 

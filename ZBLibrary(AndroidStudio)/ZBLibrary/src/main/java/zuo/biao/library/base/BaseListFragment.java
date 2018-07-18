@@ -14,6 +14,16 @@ limitations under the License.*/
 
 package zuo.biao.library.base;
 
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ListAdapter;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,23 +33,16 @@ import zuo.biao.library.interfaces.AdapterCallBack;
 import zuo.biao.library.interfaces.CacheCallBack;
 import zuo.biao.library.interfaces.OnStopLoadListener;
 import zuo.biao.library.manager.CacheManager;
-import zuo.biao.library.manager.HttpManager;
 import zuo.biao.library.util.Log;
 import zuo.biao.library.util.SettingUtil;
 import zuo.biao.library.util.StringUtil;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
-import android.widget.BaseAdapter;
 
-/**基础列表Activity
+
+/**基础列表Fragment
  * @author Lemon
  * @param <T> 数据模型(model/JavaBean)类
  * @param <LV> AbsListView的子类（ListView,GridView等）
- * @param <BA> 管理LV的Adapter
+ * @param <A> 管理LV的Adapter
  * @see #onCreateView
  * @see #setContentView
  * @see #lvBaseList
@@ -47,90 +50,55 @@ import android.widget.BaseAdapter;
  * @see #initView
  * @see #getListAsync
  * @see #onRefresh
- * @use extends BaseListFragment 并在子类onCreate中调用onRefresh(...), 具体参考.DemoListFragment
- * *缓存使用：在initData前调用initCache(...), 具体参考 .UserListFragment(onCreate方法内)
+ * @see
+ *   <pre>
+ *       基础使用：<br />
+ *       extends BaseListFragment 并在子类onCreateView中调用onRefresh(...), 具体参考.DemoListFragment
+ *       <br /><br />
+ *       缓存使用：<br />
+ *       在initData前调用initCache(...), 具体参考 .UserListFragment(onCreateView方法内)
+ *       <br /><br />
+ *       列表数据加载及显示过程：<br />
+ *       1.onRefresh触发刷新 <br />
+ *       2.getListAsync异步获取列表数据 <br />
+ *       3.onLoadSucceed处理获取数据的结果 <br />
+ *       4.setList把列表数据绑定到adapter <br />
+ *   </pre>
  */
-public abstract class BaseListFragment<T, LV extends AbsListView, BA extends BaseAdapter> extends BaseFragment {
+public abstract class BaseListFragment<T, LV extends AbsListView, A extends ListAdapter>
+		extends BaseFragment implements OnItemClickListener, OnItemLongClickListener {
 	private static final String TAG = "BaseListFragment";
 
-	private OnStopLoadListener onStopLoadListener;
-	/**设置停止加载监听
-	 * @param onStopLoadListener
-	 */
-	protected void setOnStopLoadListener(OnStopLoadListener onStopLoadListener) {
-		this.onStopLoadListener = onStopLoadListener;
-	}
 
 
-	private CacheCallBack<T> cacheCallBack;
-	/**初始化缓存
-	 * @warn 在initData前使用才有效
-	 * @param cacheCallBack
-	 */
-	protected void initCache(CacheCallBack<T> cacheCallBack) {
-		this.cacheCallBack = cacheCallBack;
-	}
 
 
 	/**
 	 * @param inflater
 	 * @param container
 	 * @param savedInstanceState
-	 * @return
+	 * @return view
 	 * @must 1.不要在子类重复这个类中onCreateView中的代码;
-	 *       2.在子类onCreateView中super.onCreateView(inflater, container, savedInstanceState);
-	 *       initView();initData();initEvent(); return view;
+	 *       2.在子类onCreateView中
+	 *       super.onCreateView(inflater, container, savedInstanceState);
+	 *
+	 *       initView();
+	 *       initData();
+	 *       initEvent();
+	 *
+	 *       return view;
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return onCreateView(inflater, container, savedInstanceState, 0);
-	}
-	/**
-	 * @param inflater
-	 * @param container
-	 * @param savedInstanceState
-	 * @param layoutResID fragment全局视图view的布局资源id，默认值为R.layout.base_http_list_fragment
-	 * @return
-	 * @must 1.不要在子类重复这个类中onCreateView中的代码;
-	 *       2.在子类onCreateView中super.onCreateView(inflater, container, savedInstanceState, layoutResID);
-	 *       initView();initData();initEvent(); return view;
-	 */
-	public final View onCreateView(LayoutInflater inflater, ViewGroup container
-			, Bundle savedInstanceState, int layoutResID) {
 		//类相关初始化，必须使用<<<<<<<<<<<<<<<<<<
 		super.onCreateView(inflater, container, savedInstanceState);
-		//调用这个类的setContentView而崩溃 super.setContentView(layoutResID <= 0 ? R.layout.base_tab_activity : layoutResID);
-		view = inflater.inflate(layoutResID <= 0 ? R.layout.base_list_fragment : layoutResID, container, false);
+		setContentView(R.layout.base_list_fragment);
 		//类相关初始化，必须使用>>>>>>>>>>>>>>>>
 
 		return view;
 	}
 
 
-	//防止子类中setContentView <<<<<<<<<<<<<<<<<<<<<<<<
-	/**
-	 * @warn 不支持setContentView，传界面布局请使用onCreateView(Bundle savedInstanceState, int layoutResID)等方法
-	 */
-	@Override
-	public final void setContentView(int layoutResID) {
-		setContentView(null);
-	}
-	/**
-	 * @warn 不支持setContentView，传界面布局请使用onCreateView(Bundle savedInstanceState, int layoutResID)等方法
-	 */
-	@Override
-	public final void setContentView(View view) {
-		setContentView(null, null);
-	}
-	/**
-	 * @warn 不支持setContentView，传界面布局请使用onCreateView(Bundle savedInstanceState, int layoutResID)等方法
-	 */
-	@Override
-	public final void setContentView(View view, LayoutParams params) {
-		throw new UnsupportedOperationException(TAG + "不支持setContentView，传界面布局请使用onCreateView(" +
-				"LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState, int layoutResID)等方法");
-	}
-	//防止子类中setContentView >>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 
@@ -144,27 +112,30 @@ public abstract class BaseListFragment<T, LV extends AbsListView, BA extends Bas
 	/**
 	 * 管理LV的Item的Adapter
 	 */
-	protected BA adapter;
+	protected A adapter;
 	/**
 	 * 如果在子类中调用(即super.initView());则view必须含有initView中初始化用到的id且id对应的View的类型全部相同；
 	 * 否则必须在子类initView中重写这个类中initView内的代码(所有id替换成可用id)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initView() {// 必须调用
 
-		lvBaseList = (LV) findViewById(R.id.lvBaseList);
+		lvBaseList = findView(R.id.lvBaseList);
 	}
 
 	/**设置adapter
 	 * @param adapter
 	 */
-	public void setAdapter(BA adapter) {
+	public void setAdapter(A adapter) {
+		if (adapter != null && adapter instanceof zuo.biao.library.base.BaseAdapter) {
+			((zuo.biao.library.base.BaseAdapter) adapter).setOnItemClickListener(this);
+			((zuo.biao.library.base.BaseAdapter) adapter).setOnItemLongClickListener(this);
+		}
 		this.adapter = adapter;
 		lvBaseList.setAdapter(adapter);
 	}
 
-	/**显示列表（已在UI线程中），一般需求建议直接调用setList(List<T> l, AdapterCallBack<BA> callBack)
+	/**刷新列表数据（已在UI线程中），一般需求建议直接调用setList(List<T> l, AdapterCallBack<A> callBack)
 	 * @param list
 	 */
 	public abstract void setList(List<T> list);
@@ -172,7 +143,7 @@ public abstract class BaseListFragment<T, LV extends AbsListView, BA extends Bas
 	/**显示列表（已在UI线程中）
 	 * @param callBack
 	 */
-	public void setList(AdapterCallBack<BA> callBack) {
+	public void setList(AdapterCallBack<A> callBack) {
 		if (adapter == null) {
 			setAdapter(callBack.createAdapter());
 		}
@@ -216,6 +187,11 @@ public abstract class BaseListFragment<T, LV extends AbsListView, BA extends Bas
 	}
 
 	/**
+	 * 列表首页页码。有些服务器设置为1，即列表页码从1开始
+	 */
+	public static final int PAGE_NUM_0 = 0;
+
+	/**
 	 * 数据列表
 	 */
 	private List<T> list;
@@ -244,8 +220,8 @@ public abstract class BaseListFragment<T, LV extends AbsListView, BA extends Bas
 		isLoading = true;
 		isSucceed = false;
 
-		if (page_ <= HttpManager.PAGE_NUM_0) {
-			page_ = HttpManager.PAGE_NUM_0;
+		if (page_ <= PAGE_NUM_0) {
+			page_ = PAGE_NUM_0;
 			isHaveMore = true;
 			loadCacheStart = 0;//使用则可像网络正常情况下的重载，不使用则在网络异常情况下不重载（导致重载后加载数据下移）
 		} else {
@@ -269,7 +245,7 @@ public abstract class BaseListFragment<T, LV extends AbsListView, BA extends Bas
 					onLoadSucceed(page, CacheManager.getInstance().getList(cacheCallBack.getCacheClass()
 							, cacheCallBack.getCacheGroup(), loadCacheStart, cacheCallBack.getCacheCount()),
 							true);
-					if (page <= HttpManager.PAGE_NUM_0) {
+					if (page <= PAGE_NUM_0) {
 						isLoading = false;//stopLoadeData在其它线程isLoading = false;后这个线程里还是true
 						loadData(page, false);
 					}
@@ -304,7 +280,7 @@ public abstract class BaseListFragment<T, LV extends AbsListView, BA extends Bas
 			return;
 		}
 		onStopLoadListener.onStopRefresh();
-		if (page > HttpManager.PAGE_NUM_0) {
+		if (page > PAGE_NUM_0) {
 			onStopLoadListener.onStopLoadMore(isHaveMore);
 		}
 	}
@@ -327,8 +303,8 @@ public abstract class BaseListFragment<T, LV extends AbsListView, BA extends Bas
 		Log.i(TAG, "\n\n<<<<<<<<<<<<<<<<<\n handleList  newList.size = " + newList.size() + "; isCache = " + isCache
 				+ "; page = " + page + "; isSucceed = " + isSucceed);
 
-		if (page <= HttpManager.PAGE_NUM_0) {
-			Log.i(TAG, "handleList  page <= HttpManager.PAGE_NUM_0 >>>>  ");
+		if (page <= PAGE_NUM_0) {
+			Log.i(TAG, "handleList  page <= PAGE_NUM_0 >>>>  ");
 			saveCacheStart = 0;
 			list = new ArrayList<T>(newList);
 			if (isCache == false && list.isEmpty() == false) {
@@ -336,7 +312,7 @@ public abstract class BaseListFragment<T, LV extends AbsListView, BA extends Bas
 				isToLoadCache = false;
 			}
 		} else {
-			Log.i(TAG, "handleList  page > HttpManager.PAGE_NUM_0 >>>>  ");
+			Log.i(TAG, "handleList  page > PAGE_NUM_0 >>>>  ");
 			if (list == null) {
 				list = new ArrayList<T>();
 			}
@@ -456,17 +432,35 @@ public abstract class BaseListFragment<T, LV extends AbsListView, BA extends Bas
 	}
 
 
+	private OnStopLoadListener onStopLoadListener;
+	/**设置停止加载监听
+	 * @param onStopLoadListener
+	 */
+	protected void setOnStopLoadListener(OnStopLoadListener onStopLoadListener) {
+		this.onStopLoadListener = onStopLoadListener;
+	}
+
+	private CacheCallBack<T> cacheCallBack;
+	/**初始化缓存
+	 * @warn 在initData前使用才有效
+	 * @param cacheCallBack
+	 */
+	protected void initCache(CacheCallBack<T> cacheCallBack) {
+		this.cacheCallBack = cacheCallBack;
+	}
+
+
 	/**刷新（从头加载）
 	 * @must 在子类onCreate中调用，建议放在最后
 	 */
 	public void onRefresh() {
-		loadData(HttpManager.PAGE_NUM_0);
+		loadData(PAGE_NUM_0);
 	}
 	/**加载更多
 	 */
 	public void onLoadMore() {
-		if (isSucceed == false && page <= HttpManager.PAGE_NUM_0) {
-			Log.w(TAG, "onLoadMore  isSucceed == false && page <= HttpManager.PAGE_NUM_0 >> return;");
+		if (isSucceed == false && page <= PAGE_NUM_0) {
+			Log.w(TAG, "onLoadMore  isSucceed == false && page <= PAGE_NUM_0 >> return;");
 			return;
 		}
 		loadData(page + (isSucceed ? 1 : 0));
@@ -474,6 +468,27 @@ public abstract class BaseListFragment<T, LV extends AbsListView, BA extends Bas
 
 
 	// 系统自带监听方法<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+	/**重写后可自定义对这个事件的处理
+	 * @param parent
+	 * @param view
+	 * @param position
+	 * @param id
+	 */
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	}
+	/**重写后可自定义对这个事件的处理，如果要在长按后不触发onItemClick，则需要 return true;
+	 * @param parent
+	 * @param view
+	 * @param position
+	 * @param id
+	 */
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		return false;
+	}
 
 
 	// 类相关监听<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="zblibrary.demo"
-    android:versionCode="23"
+    android:versionCode="26"
     android:versionName="@string/app_version" >
 
     <uses-sdk
         android:minSdkVersion="15"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="22" />
 
     <!-- 需要的权限和功能 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
 
@@ -112,6 +112,18 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name="zblibrary.demo.DEMO.DemoListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name="zblibrary.demo.DEMO.DemoRecyclerActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name="zblibrary.demo.DEMO.DemoHttpListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name="zblibrary.demo.DEMO.DemoHttpRecyclerActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity

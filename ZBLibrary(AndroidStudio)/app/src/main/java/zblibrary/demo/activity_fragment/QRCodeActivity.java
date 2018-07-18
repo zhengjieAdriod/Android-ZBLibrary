@@ -14,15 +14,6 @@ limitations under the License.*/
 
 package zblibrary.demo.activity_fragment;
 
-import zblibrary.demo.R;
-import zblibrary.demo.model.User;
-import zuo.biao.library.base.BaseActivity;
-import zuo.biao.library.interfaces.OnBottomDragListener;
-import zuo.biao.library.manager.CacheManager;
-import zuo.biao.library.util.ImageLoaderUtil;
-import zuo.biao.library.util.JSON;
-import zuo.biao.library.util.Log;
-import zuo.biao.library.util.StringUtil;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -32,8 +23,18 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.zxing.WriterException;
 import com.zxing.encoding.EncodingHandler;
+
+import zblibrary.demo.R;
+import zblibrary.demo.model.User;
+import zuo.biao.library.base.BaseActivity;
+import zuo.biao.library.interfaces.OnBottomDragListener;
+import zuo.biao.library.manager.CacheManager;
+import zuo.biao.library.util.JSON;
+import zuo.biao.library.util.Log;
+import zuo.biao.library.util.StringUtil;
 
 /**二维码界面Activity
  * @author Lemon
@@ -58,7 +59,7 @@ public class QRCodeActivity extends BaseActivity implements OnBottomDragListener
 
 	@Override
 	public Activity getActivity() {
-		return this;
+		return this; //必须return this;
 	}
 
 	private long userId = 0;
@@ -90,12 +91,12 @@ public class QRCodeActivity extends BaseActivity implements OnBottomDragListener
 	@Override
 	public void initView() {//必须调用
 		autoSetTitle();
-		
-		ivQRCodeHead = (ImageView) findViewById(R.id.ivQRCodeHead);
-		tvQRCodeName = (TextView) findViewById(R.id.tvQRCodeName);
 
-		ivQRCodeCode = (ImageView) findViewById(R.id.ivQRCodeCode);
-		ivQRCodeProgress = findViewById(R.id.ivQRCodeProgress);
+		ivQRCodeHead = findView(R.id.ivQRCodeHead);
+		tvQRCodeName = findView(R.id.tvQRCodeName);
+
+		ivQRCodeCode = findView(R.id.ivQRCodeCode);
+		ivQRCodeProgress = findView(R.id.ivQRCodeProgress);
 	}
 
 
@@ -116,7 +117,7 @@ public class QRCodeActivity extends BaseActivity implements OnBottomDragListener
 	private User user;
 	@Override
 	public void initData() {//必须调用
-		
+
 		ivQRCodeProgress.setVisibility(View.VISIBLE);
 		runThread(TAG + "initData", new Runnable() {
 
@@ -130,7 +131,7 @@ public class QRCodeActivity extends BaseActivity implements OnBottomDragListener
 				runUiThread(new Runnable() {
 					@Override
 					public void run() {
-						ImageLoaderUtil.loadImage(ivQRCodeHead, user.getHead());
+						Glide.with(context).load(user.getHead()).into(ivQRCodeHead);
 						tvQRCodeName.setText(StringUtil.getTrimedString(
 								StringUtil.isNotEmpty(user.getName(), true)
 								? user.getName() : user.getPhone()));
@@ -164,9 +165,9 @@ public class QRCodeActivity extends BaseActivity implements OnBottomDragListener
 			@Override
 			public void run() {
 					ivQRCodeProgress.setVisibility(View.GONE);
-					ivQRCodeCode.setImageBitmap(qRCodeBitmap);						
+					ivQRCodeCode.setImageBitmap(qRCodeBitmap);
 			}
-		});	
+		});
 	}
 
 	//Data数据区(存在数据获取或处理代码，但不存在事件监听代码)>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

@@ -14,37 +14,46 @@ limitations under the License.*/
 
 package zuo.biao.library.ui;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+
 import java.util.HashMap;
 import java.util.List;
 
 import zuo.biao.library.R;
-import zuo.biao.library.base.BaseAdapter;
 import zuo.biao.library.model.Entry;
-import zuo.biao.library.util.ImageLoaderUtil;
 import zuo.biao.library.util.Log;
 import zuo.biao.library.util.StringUtil;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+
 
 /**通用网格Adapter(url, name)
  * *适用于gridView
  * @author Lemon
  * @use new GridAdapter(...); 具体参考.DemoAdapter
  */
-public class GridAdapter extends BaseAdapter<Entry<String, String>> {
+public class GridAdapter extends BaseAdapter {
 	private static final String TAG = "GridAdapter";
 
 	public GridAdapter(Activity context) {
 		this(context, R.layout.grid_item);
 	}
+	private final Activity context;
+	private final LayoutInflater inflater;
 	public GridAdapter(Activity context, int layoutRes) {
-		super(context);
+		this.context = context;
+		this.inflater = context.getLayoutInflater();
 		setLayoutRes(layoutRes);
 	}
+
+
 
 	private int layoutRes;//item视图资源
 	public void setLayoutRes(int layoutRes) {
@@ -81,61 +90,11 @@ public class GridAdapter extends BaseAdapter<Entry<String, String>> {
 	//item标记功能，不需要可以删除>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
-	public int selectedCount = 0;
-	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
-		ViewHolder holder = convertView == null ? null : (ViewHolder) convertView.getTag();
-		if (holder == null) {
-			convertView = inflater.inflate(layoutRes, parent, false);
 
-			holder = new ViewHolder();
-			holder.ivGridItemHead = (ImageView) convertView.findViewById(R.id.ivGridItemHead);
-			if (hasName) {
-				holder.tvGridItemName = (TextView) convertView.findViewById(R.id.tvGridItemName);
-			}
-			if (hasCheck) {
-				holder.ivGridItemCheck = (ImageView) convertView.findViewById(R.id.ivGridItemCheck);
-			}
-
-			convertView.setTag(holder);
-		}
-
-		final Entry<String, String> kvb = getItem(position);
-		final String name = kvb.getValue();
-
-		ImageLoaderUtil.loadImage(holder.ivGridItemHead, kvb.getKey());
-
-		if (hasName) {
-			holder.tvGridItemName.setVisibility(View.VISIBLE);
-			holder.tvGridItemName.setText(StringUtil.getTrimedString(name));
-		}
-
-		if (hasCheck) {
-			holder.ivGridItemCheck.setVisibility(View.VISIBLE);
-
-			holder.ivGridItemCheck.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					setItemChecked(position, !getItemChecked(position));
-					Log.i(TAG, (getItemChecked(position) ? "" : "取消") + "选择第 " + position + " 个item name=" + name);
-				}
-			});
-		}
-
-		return convertView;
-	}
-
-	static class ViewHolder {
-		public ImageView ivGridItemHead;
-		public TextView tvGridItemName;
-		public ImageView ivGridItemCheck;
-	}
-
-
+	private List<Entry<String, String>> list;
 	/**刷新列表
 	 * @param list
 	 */
-	@Override
 	public synchronized void refresh(List<Entry<String, String>> list) {
 		if (list != null && list.size() > 0) {
 			initList(list);
@@ -169,5 +128,74 @@ public class GridAdapter extends BaseAdapter<Entry<String, String>> {
 			}
 		}
 	}
+
+
+	@Override
+	public int getCount() {
+		return list == null ? 0 : list.size();
+	}
+
+	@Override
+	public Entry<String, String> getItem(int position) {
+		return list.get(position);
+	}
+	@Override
+	public long getItemId(int position) {
+		return getItem(position).getId();
+	}
+
+
+
+
+	public int selectedCount = 0;
+	@Override
+	public View getView(final int position, View convertView, ViewGroup parent) {
+		ViewHolder holder = convertView == null ? null : (ViewHolder) convertView.getTag();
+		if (holder == null) {
+			convertView = inflater.inflate(layoutRes, parent, false);
+
+			holder = new ViewHolder();
+			holder.ivGridItemHead = (ImageView) convertView.findViewById(R.id.ivGridItemHead);
+			if (hasName) {
+				holder.tvGridItemName = (TextView) convertView.findViewById(R.id.tvGridItemName);
+			}
+			if (hasCheck) {
+				holder.ivGridItemCheck = (ImageView) convertView.findViewById(R.id.ivGridItemCheck);
+			}
+
+			convertView.setTag(holder);
+		}
+
+		final Entry<String, String> kvb = getItem(position);
+		final String name = kvb.getValue();
+
+		Glide.with(context).load(kvb.getKey()).into(holder.ivGridItemHead);
+
+		if (hasName) {
+			holder.tvGridItemName.setVisibility(View.VISIBLE);
+			holder.tvGridItemName.setText(StringUtil.getTrimedString(name));
+		}
+
+		if (hasCheck) {
+			holder.ivGridItemCheck.setVisibility(View.VISIBLE);
+
+			holder.ivGridItemCheck.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					setItemChecked(position, !getItemChecked(position));
+					Log.i(TAG, (getItemChecked(position) ? "" : "取消") + "选择第 " + position + " 个item name=" + name);
+				}
+			});
+		}
+
+		return convertView;
+	}
+
+	static class ViewHolder {
+		public ImageView ivGridItemHead;
+		public TextView tvGridItemName;
+		public ImageView ivGridItemCheck;
+	}
+
 
 }

@@ -14,30 +14,30 @@ limitations under the License.*/
 
 package zblibrary.demo.DEMO;
 
+import android.app.Activity;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import zblibrary.demo.R;
 import zuo.biao.library.base.BaseView;
 import zuo.biao.library.model.Entry;
 import zuo.biao.library.util.StringUtil;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.res.Resources;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-/**使用方法：复制>粘贴>改名>改代码  */
+
+/** 使用方法：复制>粘贴>改名>改代码 */
 /**自定义View模板，当View比较庞大复杂(解耦效果明显)或使用次数>=2(方便重用)时建议使用
  * @author Lemon
- * @see DemoAdapter2#getView(int, View, android.view.ViewGroup)
+ * @see DemoAdapter#createView
  * @use
  * <br> DemoView demoView = new DemoView(context, resources);
  * <br> adapter中使用:[具体参考.BaseViewAdapter(getView使用自定义View的写法)]
  * <br> convertView = demoView.createView(inflater);
  * <br> demoView.bindView(position, data);
- * <br> 或 其它类中使用: 
+ * <br> 或 其它类中使用:
  * <br> containerView.addView(demoView.createView(inflater));
  * <br> demoView.bindView(data);
  * <br> 然后
@@ -48,8 +48,8 @@ import android.widget.TextView;
 public class DemoView extends BaseView<Entry<String, String>> implements OnClickListener {
 	private static final String TAG = "DemoView";
 
-	public DemoView(Activity context, Resources resources) {
-		super(context, resources);
+	public DemoView(Activity context, ViewGroup parent) {
+		super(context, R.layout.demo_view, parent);  //TODO demo_view改为你所需要的layout文件
 	}
 
 
@@ -58,19 +58,16 @@ public class DemoView extends BaseView<Entry<String, String>> implements OnClick
 	public TextView tvDemoViewName;
 	public TextView tvDemoViewNumber;
 	//示例代码>>>>>>>>>>>>>>>>
-	@SuppressLint("InflateParams")
 	@Override
-	public View createView(LayoutInflater inflater) {
-		//TODO demo_view改为你所需要的layout文件，可以根据viewType使用不同layout
-		convertView = inflater.inflate(R.layout.demo_view, null);
+	public View createView() {
 
 		//示例代码<<<<<<<<<<<<<<<<
-		ivDemoViewHead = findViewById(R.id.ivDemoViewHead, this);
-		tvDemoViewName = findViewById(R.id.tvDemoViewName, this);
-		tvDemoViewNumber = findViewById(R.id.tvDemoViewNumber);
+		ivDemoViewHead = findView(R.id.ivDemoViewHead, this);
+		tvDemoViewName = findView(R.id.tvDemoViewName);
+		tvDemoViewNumber = findView(R.id.tvDemoViewNumber);
 		//示例代码>>>>>>>>>>>>>>>>
 
-		return convertView;
+		return super.createView();
 	}
 
 
@@ -92,15 +89,11 @@ public class DemoView extends BaseView<Entry<String, String>> implements OnClick
 	//示例代码<<<<<<<<<<<<<<<<
 	@Override
 	public void onClick(View v) {
-		if (onClickListener != null) {
-			onClickListener.onClick(v);
-			return;
-		}
 		if (data == null) {
 			return;
 		}
 		switch (v.getId()) {
-		case R.id.tvDemoViewName:
+		case R.id.ivDemoViewHead:
 			data.setKey("New " + data.getKey());
 			bindView(data);
 			if (onDataChangedListener != null) {

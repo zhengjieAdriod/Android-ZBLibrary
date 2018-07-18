@@ -14,6 +14,13 @@ limitations under the License.*/
 
 package zblibrary.demo.DEMO;
 
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,15 +29,9 @@ import zblibrary.demo.activity_fragment.UserActivity;
 import zuo.biao.library.base.BaseListFragment;
 import zuo.biao.library.interfaces.AdapterCallBack;
 import zuo.biao.library.model.Entry;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
 
-/**使用方法：复制>粘贴>改名>改代码  */
+
+/** 使用方法：复制>粘贴>改名>改代码 */
 /**列表Fragment示例
  * @author Lemon
  * @use new DemoListFragment(),具体参考.DemoTabActivity(getFragment方法内)
@@ -46,14 +47,15 @@ public class DemoListFragment extends BaseListFragment<Entry<String, String>, Li
 	public static DemoListFragment createInstance() {
 		return new DemoListFragment();
 	}
-	
+
 	//与Activity通信>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	
+
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		super.onCreateView(inflater, container, savedInstanceState, R.layout.demo_list_fragment);
-		
+		super.onCreateView(inflater, container, savedInstanceState);
+		setContentView(R.layout.demo_list_fragment);
+
 		//功能归类分区方法，必须调用<<<<<<<<<<
 		initView();
 		initData();
@@ -83,7 +85,7 @@ public class DemoListFragment extends BaseListFragment<Entry<String, String>, Li
 			public void refreshAdapter() {
 				adapter.refresh(list);
 			}
-			
+
 			@Override
 			public DemoAdapter createAdapter() {
 				return new DemoAdapter(context);
@@ -142,18 +144,16 @@ public class DemoListFragment extends BaseListFragment<Entry<String, String>, Li
 	@Override
 	public void initEvent() {//必须在onCreateView方法内调用
 		super.initEvent();
-		//示例代码<<<<<<<<<<<<<<<<<<<
-		lvBaseList.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				toActivity(UserActivity.createIntent(context, position));//一般用id，这里position仅用于测试 id));//
-			}
-		});
-		//示例代码>>>>>>>>>>>>>>>>>>>
+
 	}
 
 
-
+	//示例代码<<<<<<<<<<<<<<<<<<<
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		toActivity(UserActivity.createIntent(context, position));//一般用id，这里position仅用于测试 id));//
+	}
+	//示例代码>>>>>>>>>>>>>>>>>>>
 
 
 	//系统自带监听<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

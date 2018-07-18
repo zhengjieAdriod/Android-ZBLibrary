@@ -14,6 +14,14 @@ limitations under the License.*/
 
 package zblibrary.demo.activity_fragment;
 
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Toast;
+
 import java.util.List;
 
 import zblibrary.demo.adapter.UserAdapter;
@@ -24,14 +32,6 @@ import zuo.biao.library.base.BaseHttpListFragment;
 import zuo.biao.library.interfaces.AdapterCallBack;
 import zuo.biao.library.interfaces.CacheCallBack;
 import zuo.biao.library.util.JSON;
-import android.os.Bundle;
-import android.os.Handler;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Toast;
 
 /**用户列表界面fragment
  * @author Lemon
@@ -143,7 +143,7 @@ public class UserListFragment extends BaseHttpListFragment<User, UserAdapter> im
 
 			@Override
 			public void run() {
-				onHttpResponse(-page, JSON.toJSONString(TestUtil.getUserList(page, getCacheCount())), null);
+				onHttpResponse(-page, page >= 5 ? null : JSON.toJSONString(TestUtil.getUserList(page, getCacheCount())), null);
 			}
 		}, 1000);
 		//仅测试用>>>>>>>>>>>>
@@ -153,6 +153,7 @@ public class UserListFragment extends BaseHttpListFragment<User, UserAdapter> im
 	public List<User> parseArray(String json) {
 		return JSON.parseArray(json, User.class);
 	}
+
 
 	@Override
 	public Class<User> getCacheClass() {
@@ -187,18 +188,14 @@ public class UserListFragment extends BaseHttpListFragment<User, UserAdapter> im
 	public void initEvent() {//必须调用
 		super.initEvent();
 
-		lvBaseList.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (id > 0) {
-					toActivity(UserActivity.createIntent(context, id));
-				}
-			}
-		});
 	}
 
-
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		if (id > 0) {
+			toActivity(UserActivity.createIntent(context, id));
+		}
+	}
 
 	//系统自带监听方法 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
